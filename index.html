@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<head></head>
+	<body>
+		
+		<canvas id="ball" width="800" height="400">
+			对不起，您的浏览器版本过低不支持动画
+		</canvas>
+		<script type="text/javascript">
+			(function() {
+				// var canvas = document.getElementById("ball");
+				// 	ctx = canvas.getContext("2d");
+				// ctx.beginPath();
+				// ctx.arc(10 , 10 , 10 , 0 , 2*Math.PI);
+				// ctx.fillStyle="rgba(240,219,120,1)";
+				// ctx.fill();
+			Vector2 = function(x, y) { this.x = x; this.y = y; };
+ 
+			Vector2.prototype = {
+			    copy : function() { return new Vector2(this.x, this.y); },
+			    length : function() { return Math.sqrt(this.x * this.x + this.y * this.y); },
+			    sqrLength : function() { return this.x * this.x + this.y * this.y; },
+			    normalize : function() { var inv = 1/this.length(); return new Vector2(this.x * inv, this.y * inv); },
+			    negate : function() { return new Vector2(-this.x, -this.y); },
+			    add : function(v) { return new Vector2(this.x + v.x, this.y + v.y); },
+			    subtract : function(v) { return new Vector2(this.x - v.x, this.y - v.y); },
+			    multiply : function(f) { return new Vector2(this.x * f, this.y * f); },
+			    divide : function(f) { var invf = 1/f; return new Vector2(this.x * invf, this.y * invf); },
+			    dot : function(v) { return this.x * v.x + this.y * v.y; }
+			};
+			//获取x,y间的随机值
+			var range = function(x, y){
+				return Math.floor(Math.random()*(y - x) + x);
+			}
+			//焦距
+			var F = 100;
+
+			//设置动画调用函数
+			var rAF = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
+
+			var Stage = function(canvas) {
+				this.canvas = document.getElementById(canvas);
+				this.ctx = this.canvas.getContext("2d");
+				this.width = this.canvas.width;
+				this.height = this.canvas.height;
+				this.sprites = [];
+				this.count = 0;
+			}
+			Stage.prototype = {
+				addSprite : function(el) {
+					this.sprites.push(el);
+				},
+				drawSprite : function() {
+					this.ctx.clearRect(0, 0, this.width, this.height);
+					for(var i = 0; i < this.sprites.length; i++) {
+						this.sprites[i].draw();
+						this.sprites[i].animate();
+					}
+					// raf(self.drawSprite);
+					// if(this.count < 10) {
+					// 	var self = this;
+					// 	//raf(self.drawSprite);
+					// 	self.count++;
+					// }
+				},
+				drawText : function(text) {
+					this.ctx.font = "30px impact";
+					this.ctx.fillStyle = "#000";
+					this.ctx.textAlign = "center";
+					this.ctx.fillText("1111",50,50);
+				}
+			};
+
+			var stage = new Stage("ball");
+				
+				/*
+				 * description 实例化一个球类
+				 * arguments x  球心横坐标
+				 * arguments y  球心纵坐标
+				 * arguments r  球半径
+				 * arguments f  帧数
+				 * arguments v  球移动速度
+				*/
+				var Frame = 100;
+				var Ball = function(){
+					this.x = range(0, stage.width);
+					this.y = range(0, stage.height);
+					this.z = range(-10,10);
+					//this.scale = 
+					this.alpha = 1;
+					this.dx = range(50, stage.width-50);
+					this.dy = range(50, stage.height-50);
+					this.dz = range(-10, 10);
+					this.r = range(5,15);
+					this.vx = (this.dx - this.x)/Frame;
+					this.vy = (this.dy - this.y)/Frame;
+					this.vz = (this.dz - this.z)/Frame;
+					this.va = 1/Frame;
+					this.rgb = 'rgba('+range(0,255)+','+range(0,255)+','+range(0,255)+','+ this.alpha +')';
+					this.width = stage.width;
+					this.ctx = stage.ctx;
+				}
+				Ball.prototype = {
+					keyListen : function() {
+
+					},
+					animate : function() {
+						this.x += this.vx;
+						this.y += this.vy;
+						this.r *= F/(F+this.vz);
+
+						//this.r -= 0.01;
+						//this.alpha -= this.va;
+					},
+					draw : function() {
+						this.ctx.beginPath();
+						this.ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, true);
+						this.ctx.closePath();
+						this.ctx.fillStyle = this.rgb;
+						this.ctx.fill();
+					}
+				}
+
+				var init = function() {
+					stage.drawText("liwei");
+					setTimeout(function () {
+						for(var i = 0; i < 50; i++) {
+							var x = range(0, stage.width);
+							var y = range(0, stage.height);
+							var r = range(2,5);
+							var v = 0.000001;
+							stage.addSprite(new Ball(x, y, r, v));
+						}
+					},1000);
+				}
+
+				var loop = function() {
+					if(Frame--) {	
+						stage.drawSprite();	
+						rAF(loop);					
+					}
+					
+				}
+				init();
+				loop();
+			}(window));
+		</script>
+	</body>
+</html>	
